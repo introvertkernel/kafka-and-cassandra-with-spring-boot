@@ -4,6 +4,7 @@ import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ResourceUtils;
@@ -47,6 +48,9 @@ public class DemoController {
                     e.printStackTrace();
                 }
             }
+            for(String s: dataset.keySet()) {
+                System.out.println(s+" == "+dataset.get(s).size());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -59,6 +63,7 @@ public class DemoController {
             //push to kafka
             for(List<String> list:lists) {
                 SuperStore.SuperStoreBuilder superStoreBuilder = SuperStore.builder();
+                superStoreBuilder.uid(UUID.randomUUID());
                 superStoreBuilder.Row_ID(list.get(0));
                 superStoreBuilder.Order_ID(list.get(1));
                 superStoreBuilder.Order_Date(list.get(2));
@@ -84,9 +89,10 @@ public class DemoController {
             }
         }
     }
-//    @KafkaListener(topics = "${kafka.topic.name}", groupId = "${kafka.groupId}")
-//    public void consume(SuperStore superStore){
-//        System.out.println("Consuming ::::::: ");
-//        System.out.println(superStore);
-//    }
+    @KafkaListener(topics = "${kafka.topic.name}", groupId = "${kafka.groupId}",containerFactory = "containerFactory")
+    public void consume(SuperStore superStore){
+        System.out.println("Consuming ::::::: ");
+        System.out.println(superStore);
+        storeRepository.save(superStore);
+    }
 }

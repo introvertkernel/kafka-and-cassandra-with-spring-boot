@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import lombok.val;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -29,18 +30,18 @@ public class KafkaConsumerConfig {
     private String groupId;
 
     @Bean
-    public ConsumerFactory<Integer,SuperStore> consumerFactory() {
+    public ConsumerFactory<String,SuperStore> consumerFactory() {
         Map<String,Object> map = new HashMap<>();
         map.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,bootStrapServer);
         map.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        map.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        map.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        return new DefaultKafkaConsumerFactory<>(map);
+//        map.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+//        map.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        return new DefaultKafkaConsumerFactory<>(map,new StringDeserializer(),new JsonDeserializer<>(SuperStore.class));
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<Integer,SuperStore> containerFactory(){
-        ConcurrentKafkaListenerContainerFactory<Integer,SuperStore> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String,SuperStore> containerFactory(){
+        ConcurrentKafkaListenerContainerFactory<String  ,SuperStore> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;
     }
