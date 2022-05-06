@@ -84,9 +84,9 @@ public class DemoController {
             }
         }
     }
-    @KafkaListener(topics = "${kafka.topic.name}", groupId = "${kafka.groupId}")
-    public void consume(SuperStore superStore){
-        System.out.println("Consuming ::::::: ");
-        System.out.println(superStore);
-    }
+//    @KafkaListener(topics = "${kafka.topic.name}", groupId = "${kafka.groupId}")
+//    public void consume(SuperStore superStore){
+//        System.out.println("Consuming ::::::: ");
+//        System.out.println(superStore);
+//    }
 }

@@ -15,7 +15,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SuperStore implements Serializable {
+public class SuperStore {
     @PrimaryKey
     UUID uid;
     String Row_ID;

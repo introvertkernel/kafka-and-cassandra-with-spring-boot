@@ -29,7 +29,7 @@ public class KafkaConsumerConfig {
     private String groupId;
 
     @Bean
-    public ConsumerFactory<Integer,SuperStore> consumerFactory(String groupId) {
+    public ConsumerFactory<Integer,SuperStore> consumerFactory() {
         Map<String,Object> map = new HashMap<>();
         map.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,bootStrapServer);
         map.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
@@ -41,7 +41,7 @@ public class KafkaConsumerConfig {
     @Bean
     public ConcurrentKafkaListenerContainerFactory<Integer,SuperStore> containerFactory(){
         ConcurrentKafkaListenerContainerFactory<Integer,SuperStore> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory(groupId));
+        factory.setConsumerFactory(consumerFactory());
         return factory;
     }
 }
