@@ -1,10 +1,8 @@
 package com.example.demo;
 
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.cassandra.repository.CassandraRepository;
 
 import java.util.UUID;
 
-//@Repository
-public interface StoreRepository extends CrudRepository<SuperStore, UUID> {
+public interface StoreRepository extends CassandraRepository<SuperStore, UUID> {
 }

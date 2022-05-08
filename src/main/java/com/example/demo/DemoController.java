@@ -1,22 +1,21 @@
 package com.example.demo;
 
-import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ResourceUtils;
+import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.util.concurrent.ListenableFutureCallback;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.*;
 
 @Controller("/")
@@ -25,7 +24,7 @@ public class DemoController {
     StoreRepository storeRepository;
 
     @Autowired
-    KafkaTemplate<Integer,SuperStore> kafkaTemplate;
+    KafkaTemplate<String,SuperStore> kafkaTemplate;
 
     @Value(value = "${kafka.topic.name}")
     private String topicName;
@@ -85,11 +84,25 @@ public class DemoController {
                 superStoreBuilder.Quantity(list.get(18));
                 superStoreBuilder.Discount(list.get(19));
                 superStoreBuilder.Profit(list.get(20));
-                kafkaTemplate.send(topicName,superStoreBuilder.build() );
+
+                //publish to kafka
+                ListenableFuture<SendResult<String,SuperStore>> future = kafkaTemplate.send(topicName,superStoreBuilder.build() );
+                future.addCallback(new ListenableFutureCallback<SendResult<String, SuperStore>>() {
+                    @Override
+                    public void onFailure(Throwable ex) {
+                        System.out.println("Unable to publish "+ex.getMessage()+ex.getStackTrace());
+                    }
+
+                    @Override
+                    public void onSuccess(SendResult<String, SuperStore> result) {
+                        System.out.println("Message ["+superStoreBuilder.build()+"] delivered with offset {"+result.getRecordMetadata().offset()+"} and {"+result+"}");
+
+                    }
+                });
             }
         }
     }
-    @KafkaListener(topics = "${kafka.topic.name}", groupId = "${kafka.groupId}",containerFactory = "containerFactory")
+    @KafkaListener(topics = "${kafka.topic.name}", groupId = "${spring.kafka.consumer.group-id}",containerFactory = "containerFactory")
     public void consume(SuperStore superStore){
         System.out.println("Consuming ::::::: ");
         System.out.println(superStore);
